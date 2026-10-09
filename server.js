@@ -13,10 +13,10 @@ const URL =
     "https://simam.tce.pr.gov.br/Paginas/Rel_LRF.aspx?relTipo=1";
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "PUBLIC")));
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+    res.sendFile(path.join(__dirname, "PUBLIC", "index.html"));
 });
 
 // ======================================================
