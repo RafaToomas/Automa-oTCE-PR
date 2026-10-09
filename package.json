@@ -1,0 +1,15 @@
+{
+  "name": "automacao-tce-pr",
+  "version": "1.0.0",
+  "description": "Sistema de automação e análise de indicadores fiscais municipais do TCE-PR",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0",
+    "playwright": "^1.64.0",
+    "sharp": "^0.35.5"
+  }
+}

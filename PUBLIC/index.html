@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Análise TCE-PR</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<main class="container">
+
+    <header class="topo">
+
+        <div>
+
+            <div class="marca">
+                <span class="marca-texto">AUTOMAÇÃO TCE-PR</span>
+            </div>
+
+            <h1>Análise TCE-PR</h1>
+
+            <p class="subtitle">
+                Coleta e análise automatizada de dados municipais
+            </p>
+
+        </div>
+
+        <div id="status" class="status carregando">
+            Conectando ao TCE-PR...
+        </div>
+
+    </header>
+
+
+    <section class="painel">
+
+        <h2>Selecione os dados</h2>
+
+        <p class="descricao">
+            Selecione o município e o ano. A entidade e o relatório
+            são encontrados automaticamente pelo sistema.
+        </p>
+
+
+        <div class="aviso-tce">
+
+            <div class="aviso-icone">i</div>
+
+            <div>
+                <strong>Importante:</strong>
+                esta aplicação depende do acesso ao site do TCE-PR
+                para realizar as consultas e obter os dados.   
+            </div>
+
+        </div>
+
+
+        <section class="form-grid">
+
+            <div class="campo">
+
+                <label for="municipio">
+                    Município
+                </label>
+
+                <select id="municipio" disabled>
+
+                    <option value="">
+                        Carregando municípios...
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="ano">
+                    Ano
+                </label>
+
+                <select id="ano" disabled>
+
+                    <option value="">
+                        Carregando anos...
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <section class="botoes">
+
+            <button id="btnConsultar" disabled>
+                Consulta única
+            </button>
+
+            <button
+                id="btnHistorico"
+                class="botao-secundario"
+                disabled
+            >
+                Consulta histórica 2019–2025
+            </button>
+
+        </section>
+
+
+        <p id="mensagem" class="mensagem">
+            A automação está iniciando. Aguarde...
+        </p>
+
+
+        <div id="erroBox" class="erro-box"></div>
+
+    </section>
+
+
+    <!-- RESULTADO DA CONSULTA ÚNICA -->
+
+    <section id="resultadoUnico" class="resultado">
+
+        <div class="resultado-titulo">
+
+            <div class="titulo-esquerda">
+
+                <h2>Resultado da consulta</h2>
+
+                <p>
+                    Indicadores financeiros encontrados para o período selecionado.
+                </p>
+
+            </div>
+
+            <span id="badgeAno" class="badge"></span>
+
+        </div>
+
+
+        <div class="cards">
+
+            <div class="card">
+
+                <div class="label">
+                    Receita Corrente Líquida (RCL)
+                </div>
+
+                <div id="rcl" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    RCL Ajustada
+                </div>
+
+                <div id="rclAjustada" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    Despesa Total com Pessoal (DTP)
+                </div>
+
+                <div id="dtp" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    Percentual da despesa com pessoal
+                </div>
+
+                <div id="percentual" class="valor">
+                    -
+                </div>
+
+                <span id="situacao" class="situacao">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    Limite de alerta — 48,6%
+                </div>
+
+                <div id="limiteAlerta" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    Limite prudencial — 51,3%
+                </div>
+
+                <div id="limitePrudencial" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="label">
+                    Limite máximo — 54%
+                </div>
+
+                <div id="limiteMaximo" class="valor">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card destaque">
+
+                <div class="label">
+                    Transferências do FUNDEB
+                </div>
+
+                <div id="fundeb" class="valor">
+                    -
+                </div>
+
+                <div
+                    id="fundebOrigem"
+                    class="origem"
+                    style="display:none;"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RESULTADO HISTÓRICO -->
+
+    <section id="resultadoHistorico" class="resultado">
+
+        <div class="painel historico-painel">
+
+
+            <div class="historico-cabecalho">
+
+                <div>
+
+                    <h2>
+                        Histórico 2019–2025
+                    </h2>
+
+                    <p>
+                        Evolução dos principais indicadores financeiros do município.
+                    </p>
+
+                </div>
+
+
+                <span
+                    id="badgeMunicipio"
+                    class="badge"
+                ></span>
+
+            </div>
+
+
+            <div id="historicoTabelaContainer">
+
+                <div class="tabela-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Indicador
+                                </th>
+
+                                <th>
+                                    Tipo
+                                </th>
+
+                                <th>2019</th>
+                                <th>2020</th>
+                                <th>2021</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="tabelaHistorico"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="legenda legenda-canto">
+
+                    <div class="legenda-titulo">
+                        Limites da LRF
+                    </div>
+
+                    <div class="legenda-itens">
+
+                        <div class="legenda-item">
+                            <span class="legenda-cor cor-verde"></span>
+                            Até 48,6% → Situação regular
+                        </div>
+
+                        <div class="legenda-item">
+                            <span class="legenda-cor cor-alerta"></span>
+                            48,6% a 51,3% → Alerta
+                        </div>
+
+                        <div class="legenda-item">
+                            <span class="legenda-cor cor-prudencial"></span>
+                            51,3% a 54% → Limite prudencial
+                        </div>
+
+                        <div class="legenda-item">
+                            <span class="legenda-cor cor-maximo"></span>
+                            Acima de 54% → Acima do limite legal
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="historicoGrafico"
+                class="grafico-wrapper"
+            >
+
+                <div class="resultado-titulo">
+
+                    <div class="titulo-esquerda">
+
+                        <h2>
+                            Evolução dos indicadores
+                        </h2>
+
+                        <p>
+                            Comparação dos valores entre 2019 e 2025.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="grafico-area">
+
+                    <canvas
+                        id="graficoHistoricoCanvas"
+                    ></canvas>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="acoes-historico"
+                style="padding: 0 28px 28px;"
+            >
+
+                <button
+                    id="btnAlternarHistorico"
+                    class="botao-grafico"
+                >
+                    Ver gráfico
+                </button>
+
+
+                <button
+                    id="btnExportarExcel"
+                    class="botao-excel"
+                >
+                    Exportar para Excel
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- TELA DE CARREGAMENTO -->
+
+<div
+    id="loadingOverlay"
+    class="loading-overlay"
+>
+
+    <div class="loading-box">
+
+        <div class="loading-spinner"></div>
+
+        <div class="loading-titulo">
+            Processando consulta
+        </div>
+
+        <div
+            id="loadingMensagem"
+            class="loading-mensagem"
+        >
+            Acessando o TCE-PR...
+        </div>
+
+        <div class="loading-barra">
+
+            <div class="loading-barra-progresso"></div>
+
+        </div>
+
+        <div class="loading-detalhe">
+            Aguarde enquanto os dados são coletados.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="/js/script.js"></script>
+
+</body>
+</html>
